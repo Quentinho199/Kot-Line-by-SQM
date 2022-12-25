@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title th:text="${title}">Titre du document</title>
+    <div th:replace="fragments/header :: header-css"/>
+</head>
+<body>
+<div th:replace="fragments/header :: header"/>
+
+<div class="container">
+    <!--    https://getbootstrap.com/docs/5.2/-->
+
+    <form action="#" th:action="@{/addPerson}" th:object="${personDto}" method="post">
+        <div th:if="${#fields.hasGlobalErrors()}" class="p-2" style="border-style: solid; border-color: red">
+            <h5>Erreur de niveau entité</h5>
+            <ol>
+            <item th:each="err : ${#fields.globalErrors()}" th:text="${err}" class="error-input" />
+            </ol>
+        </div>
+        <div class="mb-3">
+            <label for="id-login" class="form-label">Login</label>
+            <input type="text" th:field="*{login}" class="form-control" id="id-login" aria-describedby="login person">
+            <div th:if="${#fields.hasErrors('login')}" class="error-input" th:errors="*{login}">Login Error</div>
+            <div id="loginHelp" class="form-text">an original login</div>
+        </div>
+        <div class="mb-3">
+            <label for="idFirstname" class="form-label">Firstname</label>
+            <input type="text" th:field="*{firstname}" class="form-control" id="idFirstname">
+            <div th:if="${#fields.hasErrors('firstname')}" class="error-input" th:errors="*{firstname}">firstname
+                Error
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="idLastname" class="form-label">Lastname</label>
+            <input type="text" th:field="*{lastname}" class="form-control" id="idLastname">
+            <div th:if="${#fields.hasErrors('lastname')}" class="error-input" th:errors="*{lastname}">lastname Error
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="idDescription" class="form-label">Description</label>
+            <input type="text" th:field="*{description}" class="form-control" id="idDescription">
+            <div th:if="${#fields.hasErrors('description')}" class="error-input" th:errors="*{description}">description
+                Error
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+
+<div th:replace="fragments/footer:: footer"/>
+
+</body>
+</html>

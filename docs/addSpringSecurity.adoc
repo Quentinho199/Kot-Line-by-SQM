@@ -1,0 +1,244 @@
+= Spring Security
+
+Les actions menées à minima pour intégrer Spring Security dans l'application demo.
+
+== Verifier les versions
+
+Les versions utilisées ne sont pas les dernières en date, qui ont besoin d'être rodées avec Kotlin.
+
+=== Spring Boot
+
+.Dans pom.xml
+[source, xml]
+----
+[...]
+<parent>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-parent</artifactId>
+	<version>2.7.5</version>
+	<relativePath/> <!-- lookup parent from repository -->
+</parent>
+----
+
+=== Java et Kotlin
+
+.Dans pom.xml
+[source, xml]
+----
+[...]
+
+	<description>Demo project for Spring Boot</description>
+	<properties>
+		<java.version>17</java.version>
+		<kotlin.version>1.6.21</kotlin.version>
+	</properties>
+
+[...]
+
+----
+
+On peux tenter kotlin en version `1.7.20`.
+
+=== Spring Security
+
+
+.Dans pom.xml
+[source, xml]
+----
+<!--Attention : par défaut le parefeu est activé et filtre un max !! -->
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+<dependency>
+  <groupId>org.thymeleaf.extras</groupId>
+  <artifactId>thymeleaf-extras-springsecurity5</artifactId>
+</dependency>
+<dependency>
+  <groupId>org.springframework.security</groupId>
+  <artifactId>spring-security-test</artifactId>
+  <scope>test</scope>
+</dependency>
+----
+
+La bibliothèque _thymleaf extras_ permet de conditionner la présence de liens en fonction des droits de l'utilisateur courant. L'idée est de ne pas exposer des liens auxquels l'utilisateur actuel n'a pas droit. Cela fait partie de la cohérence de l'UI, très appréciée des utilisateurs.
+
+== Update entité User
+
+Dans ce projet, nous avons une entité qui représente des personnes. On va considérer que ce sont potentiellement des utilisateurs. Du coup nous allons ajouter 2 propriétés : `role` et `password` à cette entité.
+
+.Analyse à minima (un utilisateur n'a qu'un seul rôle)
+[plantuml]
+----
+class Person{
+  [...]
+  password: String
+}
+
+class Role {
+  nom: String
+}
+
+Person "*" - "1" Role: \t\t
+
+hide circle
+hide method
+----
+
+
+.Analyse plus conceptuelle (un utilisateur peut avoir plusieurs rôles)
+[plantuml]
+----
+class Person{
+  [...]
+  password: String
+}
+
+class Role {
+  nom: String
+}
+
+Person "*" - "*" Role: \t\t
+
+hide circle
+hide method
+----
+
+Pour faire simple, nous ferons l'économie de l'entité `Role`, et optons pour la première analyse.
+
+[source, kotlin]
+----
+@Entity
+@Table(name = "person")   {
+class Person(
+    var login: String,
+    var firstname: String,
+    var lastname: String,
+    // [...]
+    // add for security role (or ManyToMAny vers Entité Role)
+    var role: String,
+    var password: String,
+}
+----
+
+Bien entendu, il faudra revoir le code qui exploite cette classe, comme `DatabaseIntitalizer` et `Extensions.kt`.
+
+
+== Configuration de Spring Sécurity
+
+=== Choisir des propriétés identifiantes de l'utilisateur
+
+Par exemple `username`, `login`, `pseudo`, `eamil` ...
+
+=== Choisir une fonction cryptographique non réversible
+
+Une obligation définit par la CNIL, qui impose que le mot de passe soit sauvegardé crypté, par un procédé *irreversible*. Le hashage fait bien ce travail.
+
+*BCrypt* est une bonne solution, qui résout plusieurs contraintes (salage unique et coût en temps modulable)
+
+=== Création d'une classe de configuration
+
+[source, kotlin]
+----
+
+@Configuration
+@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableWebSecurity
+class WebSecurityConfiguration @Autowired constructor(
+    private val userDetailsService: CustomUserServiceDetails)   {
+
+    @Bean
+    @Throws(java.lang.Exception::class)
+    fun authManager(
+        http: HttpSecurity,
+        bCryptPasswordEncoder: BCryptPasswordEncoder, <1>
+        userDetailsService: CustomUserServiceDetails <2>
+    ): AuthenticationManager? {
+        return http.getSharedObject(AuthenticationManagerBuilder::class.java)
+            .userDetailsService(userDetailsService)
+            .passwordEncoder(bCryptPasswordEncoder)
+            .and()
+            .build()
+    }
+
+    @Bean
+    @Throws(java.lang.Exception::class)
+    fun filterChain(http: HttpSecurity): SecurityFilterChain? {
+        http.authorizeHttpRequests()
+            .antMatchers("/").permitAll()
+            .antMatchers("/login").permitAll()
+            .antMatchers("/webjars/**").permitAll()
+            .antMatchers("/error").permitAll() //.antMatchers("/admin/**").permitAll()
+            .antMatchers("/import/**").hasAnyAuthority("ROLE_VIP")
+            .and() //.csrf().disable()
+            .formLogin()
+//            .loginPage("/login").failureUrl("/login?error=true")
+            .defaultSuccessUrl("/import")
+            .usernameParameter("username")
+            .passwordParameter("password")
+            .and()
+            .logout()
+            .logoutRequestMatcher(AntPathRequestMatcher("/logout"))
+            .logoutSuccessUrl("/login")
+            .invalidateHttpSession(true)
+            .clearAuthentication(true)
+            .deleteCookies("JSESSIONID")
+            .and()
+        return http.build()
+    }
+
+    @Bean
+    fun bCryptPasswordEncoder(): BCryptPasswordEncoder {
+        return BCryptPasswordEncoder()
+    }
+
+}
+----
+<1>  Un bean déclaré ci-dessous
+<2>  Une classe maison déclarée dans le dossier `service` qui permet de charger en mémoire une instance identifiant une personne à partir des données reçues par le formulaire de login.
+
+.La classe Service
+[source, kotlin]
+----
+
+@Service
+class CustomUserServiceDetails @Autowired constructor(
+  private val personRepository : PersonRepository):  UserDetailsService  {
+    var logger : Logger = LoggerFactory.getLogger(CustomUserServiceDetails::class.java)
+
+    @Transactional
+    @Throws(UsernameNotFoundException::class)
+    override fun loadUserByUsername(username: String): UserDetails {
+
+        val user = personRepository.findByLogin(username)
+        if (user == null) {
+             logger.info("user not found : $username")
+             throw UsernameNotFoundException("Could not find user")
+        }
+
+        val authorities: List<GrantedAuthority> = listOf(SimpleGrantedAuthority(user.role))
+
+        return buildUserForAuthentication(user, authorities)
+    }
+
+    private fun buildUserForAuthentication(user: Person, authorities: List<GrantedAuthority>): UserDetails {
+        return org.springframework.security.core.userdetails.User(user.login, user.password,
+                true, true, true, true, authorities)
+    }
+}
+
+----
+
+
+
+=== CSRF et formulaire
+
+Pour éviter que le formulaire soit de nouveau réexécuté, via un script malveillant par exemple, on peut lui adjoindre, côté serveur, un identifiant à usage unique.
+
+Cela est également une réponse défensive à des attaques de type *CSRF* (_Cross-Site Request Forgery_) .
+
+_L’objet de cette attaque est de transmettre à un utilisateur authentifié une requête HTTP falsifiée qui pointe sur une action interne au site, afin qu'il l'exécute sans en avoir conscience et en utilisant ses propres droits. L’utilisateur devient donc complice d’une attaque sans même s'en rendre compte. L'attaque étant actionnée par l'utilisateur, un grand nombre de systèmes d'authentification sont contournés._ [wikipedia - 2022]
+
+
+
+

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title th:text="${title}">Titre du document</title>
+    <div th:replace="fragments/header :: header-css"/>
+</head>
+<body>
+<div th:replace="fragments/header :: header"/>
+
+<div class="container">
+    <h1 th:text="${title}">Un titre</h1>
+</div>
+
+<div class="center">
+    <a> Bienvenu sur le projet Kot-line du groupe SQM qui vous permettra de translater votre fichier au format CSV vers
+        une Base de Données SQL</a>
+</div>
+<div class="center">
+<table>
+        <thead class="middle">
+        <tr>
+            <th scope="col">Liens Utiles :</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <button type=“button” onclick="window.location.href='https://ldv-melun.github.io/projet-kot-line/';">Le projet initial</button>
+            </td>
+        </tr>
+<!--        <tr>-->
+<!--            <td>-->
+<!--                <button type=“button” onclick="window.location.href='https://gitlab.com/equipe-sqm/kot-line';">Notre Dépôt Gitlab</button>-->
+<!--            </td>-->
+<!--        </tr>-->
+        <tr>
+            <td>
+                <button type=“button” onclick="window.location.href='https://github.com/Quentinho199/kot-line-SQM';">Notre Dépôt Github</button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div th:replace="fragments/footer:: footer"/>
+
+</body>
+</html>
