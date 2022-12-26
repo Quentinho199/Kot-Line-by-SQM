@@ -157,7 +157,7 @@ Pour eviter les doublons de cartes bancaires, nous avons réalisé une map qui p
 
 ----
 for(key in mapLoginCCNumber.keys){
-   if(mapLoginCCNumber[key] == csvRecord.get("CCNumber")){
+   if(mapLoginCCNumber[value] == csvRecord.get("CCNumber")){
         estValide = false
         clientRepository.findByLogin(key).estValide = false
    }else{
