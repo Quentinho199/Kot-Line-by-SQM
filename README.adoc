@@ -56,12 +56,12 @@ Véhicule "1" <-- "1" Marque
 
 Le choix de notre équipe s'est porté sur la librairie `FasterXML Jackson CSV` pour sa facilité d'analyse et d'utilisation en premier lieu mais nous avons décidé de retenir la librairie logicielle d'*`Apache`* car la lecture avec la librairie *CSV d'Apache* est vraiment simple, de plus elle ne nécessite qu'une seule dépendance et n'a pas de configuration complexe lorsque c'est le cas pour la librairie `FasterXML Jackson CSV`
 
-=== Les 3 contraintes de selection :
+=== Les 3 contraintes de sélction :
 Les contraintes de sélection à prendre en compte sont:
 
 . *L'âge*
 
-* _Si lors du transfert, une personne du fichier *CSV* n'etant pas agé entre 18 et 88 ans est rencontrée. Il faudra s'en occuper pour qu'elle n'apparaisse pas dans la table des Clients de la Base de données._
+* _Si lors du transfert, une personne du fichier *CSV* n'étant pas agé entre 18 et 88 ans est rencontrée. Il faudra s'en occuper pour qu'elle n'apparaisse pas dans la table des bons Clients de la Base de données._
 
 . *La taille*
 
@@ -153,7 +153,7 @@ Par la suite, `correspondanceTaille` est utilisé par `estValide` pour les valeu
 
 * `Les Cartes Bancaires redondantes`
 
-Pour eviter les doublons de cartes bancaires, nous avons réalisé une map qui permet la comparaison de valeurs (Les numéros de cartes bancaires dans le fichier csv) grâce à une clé (L'username des clients dans le fichier csv). La clé étant les usernames avec ayant pour valeur les numéros de cartes bancaires, si un client a un numéro de carte qui correspond à celui d'un autre dans la map, alors la variable 'estValide' aura la valeur false, si cependant il n’est pas dans la map, cette dernière enregistre le numéro de carte bancaire à la clé correspondant à l’username.
+Pour eviter les doublons de cartes bancaires, nous avons réalisé une map qui permet la comparaison de valeurs (Les numéros de cartes bancaires dans le fichier csv) grâce à une clé (L'username des clients dans le fichier csv). La clé étant les usernames avec ayant pour valeur les numéros de cartes bancaires, si un client a un numéro de carte qui correspond à celui d'un autre dans la map, alors la variable 'estValide' aura la valeur false pour les deux ayant un numéro de carte similaire, si cependant il n’est pas dans la map, cette dernière enregistre le numéro de carte bancaire à la clé correspondant à l’username.
 
 ----
 for(key in mapLoginCCNumber.keys){
