@@ -12,7 +12,7 @@ Fait en fin d'année 2022, conclu le 25/12/2022.
 Concevoir un prototype d'application web, qui sera disponible dans l’intranet de l’entreprise `Kot-Line` permettant d’intégrer les données de fichiers dans une base de données.
 
 == Analyse :
-=== Le diagramme de classe des entités metiers du projet :
+=== Le diagramme de classes des entités metiers du projet :
 image::Diagramme.png[Diagramme]
 [plantuml]
 -----
