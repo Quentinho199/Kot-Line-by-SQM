@@ -108,7 +108,7 @@ class ImportController @Autowired constructor(private val clientRepository: Clie
             for (csvRecord in csvParser) {
                 var estValide: Boolean = estValide(csvRecord.get("birthday"),csvRecord.get("Centimeters"),csvRecord.get("FeetInches"))
                 for(key in mapLoginCCNumber.keys){
-                    if(mapLoginCCNumber[key] == csvRecord.get("CCNumber")){
+                    if(mapLoginCCNumber[value] == csvRecord.get("CCNumber")){
                         estValide = false
                         clientRepository.findByLogin(key).estValide = false
                     }else{
