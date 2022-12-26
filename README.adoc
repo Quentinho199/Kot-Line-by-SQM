@@ -14,6 +14,8 @@ Concevoir un prototype d'application web, qui sera disponible dans l’intranet 
 == Analyse :
 === Le diagramme de classe des entités metiers du projet :
 
+image::diagrame.jpg[Diagramme]
+
 [plantuml]
 -----
 @startuml
