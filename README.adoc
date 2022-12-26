@@ -210,6 +210,16 @@ L'accès à la page d'importation de fichier disponible  uniquement si l'utilisa
    <a class="nav-link" href="/import">Importer</a>
 </li>
 ----
+Le hachage des Mots de Passes des Clients dans la base de données
+----
+fun hashPassword(password: String): String {
+    val passwordEncoder = BCryptPasswordEncoder()
+    return passwordEncoder.encode(password)
+}
+----
+----
+val mdp = hashPassword(csvRecord.get("Password"))
+----
 * La Surcharge
 
 Pour éviter un temps de traitement trop long et de causer un bogue à l'application Web, nous avons définit une taille d'import de fichier à ne pas dépasser qui à été fixé à 3 MégaBytes, permettant de translater des fichiers assez conséquents tout en faisant attention au serveur accueillant la Web APP
