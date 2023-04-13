@@ -107,14 +107,17 @@ class ImportController @Autowired constructor(private val clientRepository: Clie
 
             for (csvRecord in csvParser) {
                 var estValide: Boolean = estValide(csvRecord.get("birthday"),csvRecord.get("Centimeters"),csvRecord.get("FeetInches"))
-                for(key in mapLoginCCNumber.keys){
-                    if(mapLoginCCNumber[value] == csvRecord.get("CCNumber")){
+                for (entry in mapLoginCCNumber) {
+                    if (entry.value == csvRecord.get("CCNumber")) {
                         estValide = false
-                        clientRepository.findByLogin(key).estValide = false
-                    }else{
-                        mapLoginCCNumber[csvRecord.get("Username")] = csvRecord.get("CCNumber")
+                        clientRepository.findByLogin(entry.key).estValide = false
                     }
                 }
+
+                if (estValide) {
+                    mapLoginCCNumber[csvRecord.get("Username")] = csvRecord.get("CCNumber")
+                }
+
                 val adresse = csvRecord.get("Streetaddress")+','+ csvRecord.get("ZipCode")+ ' ' + csvRecord.get("City")
                 val age = getAge(csvRecord.get("birthday"))
 //                logger.info("csvRecord : " + csvRecord)
@@ -172,7 +175,7 @@ class ImportController @Autowired constructor(private val clientRepository: Clie
 
             redirectAttributes.addFlashAttribute(
                 "stats",
-                "Successfully import '" + file.originalFilename + "' (" + cptImportedPersons + " records)"
+                "Importation réussie '" + file.originalFilename + "' (" + cptImportedPersons + " records)"
             )
         } catch (e: IOException) {
             e.printStackTrace()
