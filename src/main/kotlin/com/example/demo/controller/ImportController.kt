@@ -175,7 +175,7 @@ class ImportController @Autowired constructor(private val clientRepository: Clie
 
             redirectAttributes.addFlashAttribute(
                 "stats",
-                "Importation réussie '" + file.originalFilename + "' (" + cptImportedPersons + " records)"
+                "Successfully import '" + file.originalFilename + "' (" + cptImportedPersons + " records)"
             )
         } catch (e: IOException) {
             e.printStackTrace()
@@ -198,4 +198,3 @@ class ImportController @Autowired constructor(private val clientRepository: Clie
     }
 
 }
-
