@@ -27,22 +27,21 @@ class ClientController @Autowired constructor(private val ClientRepository: Clie
     }
 
     @GetMapping("/delete/{id}")
-    fun deleteClient (@PathVariable id: Long?, requete : HttpServletRequest, reponse: HttpServletResponse): String {
-        var id = requete.getParameter("id")
-        var one = id.toLong()
-        ClientRepository.deleteById(one)
-        return "redirect:/client"
+    fun deleteClient(@PathVariable id: Long): String {
+        ClientRepository.deleteById(id)
+        return "redirect:/clients"
     }
 
-    @GetMapping("/client/detail/{id}")
-    fun detail(@PathVariable id: Long, model: Model): String {
-        println("id = ${id}")
-        val client : Client = ClientRepository.findByIdOrNull(id)
-            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "clientRepository not found")
 
-        model["title"] = "Les clients"
-        model["client"] = client
-        return "client/detail"
-    }
+//    @GetMapping("/client/detail/{id}")
+//    fun detail(@PathVariable id: Long, model: Model): String {
+//        println("id = ${id}")
+//        val client : Client = ClientRepository.findByIdOrNull(id)
+//            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "clientRepository not found")
+//
+//        model["title"] = "Les clients"
+//        model["client"] = client
+//        return "client/detail"
+//    }
 
 }
