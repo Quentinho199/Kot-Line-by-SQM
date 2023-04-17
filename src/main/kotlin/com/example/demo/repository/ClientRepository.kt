@@ -17,7 +17,6 @@ interface ClientRepository : CrudRepository<Client, Long> {
     // Version DSL by Spring Boot (ne dépend que du modèle)
     // ---------------------------------------------------------------
 
-    override fun deleteById(id: Long)
 
     fun findByLogin(login: String): Client
     fun existsClientByLoginIgnoreCase(login: String): Boolean
